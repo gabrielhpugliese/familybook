@@ -59,10 +59,13 @@ def parse_note(content):
     r = regex.search(content)
     try:
         note_content = r.groups()[0]
-    except:
+    except AttributeError:
         regex = re.compile('<en-note>(.*)</en-note>')
         r = regex.search(content)
-        note_content = r.groups()[0]
+        try:
+            note_content = r.groups()[0]
+        except AttributeError:
+            pass
 
     media_index = note_content.find('<en-media')
     note_content = note_content[:media_index]

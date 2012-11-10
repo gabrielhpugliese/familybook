@@ -14,7 +14,11 @@ def list_notebooks(request):
 
 @csrf_exempt
 def list_notes(request, notebook_guid):
-    response = evernote_facades.list_notes(notebook_guid)
+    notes = evernote_facades.list_notes(notebook_guid)
+    response = []
+    for note in notes:
+        note = evernote_facades.load_note(note['NoteId'])
+        response.append(note)
     return HttpResponse(json.dumps(response), mimetype='application/json')
 
 

@@ -75,7 +75,7 @@ def load_note(guid, user_store, note_store):
         logging.error('Error on note retrieval: %s' % str(e))
 
     note_content = parse_note(note.content)
-    note_dct = {'description': note_content}
+    note_dct = {'description': note_content, 'title': note.title}
     try:
         image = '%s/%s?auth=%s' % (settings.EVERNOTE_RESOURCE_URI,
                                    note.resources[0].guid,
