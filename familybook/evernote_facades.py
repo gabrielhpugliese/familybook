@@ -3,7 +3,8 @@ import logging
 from django.conf import settings
 import evernote.edam.notestore.ttypes as NoteTypes
 
-from evernote_utils import create_note, create_image_resource, create_notebook
+from evernote_utils import (create_note, create_image_resource, create_notebook,
+                            parse_note)
 from decorators import with_evernote
 
 
@@ -73,7 +74,18 @@ def load_note(guid, user_store, note_store):
     except Exception, e:
         logging.error('Error on note retrieval: %s' % str(e))
 
-    return note
+    note_content = parse_note(note.content)
+    note_dct = {'description': note_content}
+    try:
+        image = '%s/%s?auth=%s' % (settings.EVERNOTE_RESOURCE_URI,
+                                   note.resources[0].guid,
+                                   settings.EVERNOTE_DEVELOPER_TOKEN)
+        note_dct['image'] = str(image)
+    except:
+        logging.info('could not get any file from this note: %s' % guid)
+        note_dct['image'] = ''
+
+    return note_dct
 
 
 @with_evernote

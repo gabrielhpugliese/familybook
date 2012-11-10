@@ -155,3 +155,4 @@ LOGGING = {
 EVERNOTE_DEVELOPER_TOKEN = 'S=s1:U=3a93f:E=142390b08ad:C=13ae159dcad:P=1cd:A=en-devtoken:H=5be91cd715c3c9a719acf2d44c8713a4'
 EVERNOTE_HOST = 'sandbox.evernote.com'
 EVERNOTE_STORE_URI = 'https://' + EVERNOTE_HOST + '/edam/user'
+EVERNOTE_RESOURCE_URI = 'https://' + EVERNOTE_HOST + '/shard/s1/res'

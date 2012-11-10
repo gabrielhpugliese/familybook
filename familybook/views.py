@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
@@ -38,7 +38,7 @@ def save_notebook(request):
 def save_note(request):
     title = request.POST.get('title')
     content = request.POST.get('description')
-    post_file = request.FILES.get('file')
+    post_file = request.FILES.get('image')
 
     response = evernote_facades.save_note(title, content, post_file=post_file)
     return HttpResponse(json.dumps(response), mimetype='application/json')
