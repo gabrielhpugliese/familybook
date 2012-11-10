@@ -16,8 +16,8 @@ def save_note(title, content, user_store, note_store, post_file=None):
         for chunk in post_file.chunks():
             image += chunk
 
-    image_resource = create_image_resource(image)
-    note = create_note(title, content, image_resource)
+        image = create_image_resource(image)
+    note = create_note(title, content, image)
     try:
         note_store.createNote(settings.EVERNOTE_DEVELOPER_TOKEN, note)
         response = True
