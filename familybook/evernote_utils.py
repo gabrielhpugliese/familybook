@@ -1,9 +1,11 @@
 import hashlib
 import binascii
 import re
+from StringIO import StringIO
 
 import evernote.edam.type.ttypes as Types
 import evernote.edam.notestore.ttypes as NoteTypes
+from lxml import etree
 
 
 def create_image_resource(image):
@@ -54,20 +56,11 @@ def create_notebook(name):
 
 
 def parse_note(content):
-    note_content = ''
-    regex = re.compile('<caption>(.*)</caption>')
-    r = regex.search(content)
+    tree = etree.parse(StringIO(content), etree.HTMLParser())
     try:
-        note_content = r.groups()[0]
-    except AttributeError:
-        regex = re.compile('<en-note>(.*)</en-note>')
-        r = regex.search(content)
-        try:
-            note_content = r.groups()[0]
-        except AttributeError:
-            pass
-
-    media_index = note_content.find('<en-media')
-    note_content = note_content[:media_index]
+        note_content = tree.xpath('//en-note')[0].text
+    except:
+        note_content = ''
 
     return note_content
+
