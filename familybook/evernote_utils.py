@@ -1,36 +1,36 @@
 import hashlib
 import binascii
+import logging
 import re
-from StringIO import StringIO
 
 import evernote.edam.type.ttypes as Types
 import evernote.edam.notestore.ttypes as NoteTypes
 
 try:
   from lxml import etree
-  print("running with lxml.etree")
+  logging.info("running with lxml.etree")
 except ImportError:
   try:
     # Python 2.5
     import xml.etree.cElementTree as etree
-    print("running with cElementTree on Python 2.5+")
+    logging.info("running with cElementTree on Python 2.5+")
   except ImportError:
     try:
       # Python 2.5
       import xml.etree.ElementTree as etree
-      print("running with ElementTree on Python 2.5+")
+      logging.info("running with ElementTree on Python 2.5+")
     except ImportError:
       try:
         # normal cElementTree install
         import cElementTree as etree
-        print("running with cElementTree")
+        logging.info("running with cElementTree")
       except ImportError:
         try:
           # normal ElementTree install
           import elementtree.ElementTree as etree
-          print("running with ElementTree")
+          logging.info("running with ElementTree")
         except ImportError:
-          print("Failed to import ElementTree from any known place")
+          logging.info("Failed to import ElementTree from any known place")
 
 
 def create_image_resource(image):
@@ -40,7 +40,7 @@ def create_image_resource(image):
 
     data = Types.Data()
     data.size = len(image)
-    data.bodyHash = hash
+    data.bodyHash = image_hash
     data.body = image
 
     resource = Types.Resource()
@@ -64,8 +64,7 @@ def create_note(title, content, notebook_guid='', image_resource=None):
     note.title = title
     note.content = '''<?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-    <en-note><caption>Here is the note:<br/>
-    %s</caption>''' % content
+    <en-note><caption>%s</caption>''' % content
     if hash_hex:
         note.content += '<en-media type="image/png" hash="%s"/>' % hash_hex
     note.content += '</en-note>'
@@ -81,11 +80,18 @@ def create_notebook(name):
 
 
 def parse_note(content):
-    tree = etree.parse(StringIO(content), etree.HTMLParser())
+    note_content = ''
     try:
-        note_content = tree.xpath('//en-note')[0].text
+        content = content.split('<caption>')[1].split('</caption>')[0]
     except:
-        note_content = ''
+        pass
+
+    media_index = content.find('<en-media')
+    content = content[:media_index]
+
+    note_lst = content.split('<br/>')
+    for content in note_lst:
+        note_content += content
 
     return note_content
 

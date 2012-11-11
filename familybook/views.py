@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
 
 import evernote_facades
+import logging
 
 
 @csrf_exempt
@@ -42,9 +43,11 @@ def save_notebook(request):
 def save_note(request):
     title = request.POST.get('title')
     content = request.POST.get('description')
+    notebook_guid = request.POST.get('notebookid')
     post_file = request.FILES.get('image')
 
-    response = evernote_facades.save_note(title, content, post_file=post_file)
+    response = evernote_facades.save_note(title, content, notebook_guid,
+                                          post_file=post_file)
     return HttpResponse(json.dumps(response), mimetype='application/json')
 
 

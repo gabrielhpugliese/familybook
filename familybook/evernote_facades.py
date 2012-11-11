@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from django.conf import settings
 import evernote.edam.notestore.ttypes as NoteTypes
@@ -9,15 +10,18 @@ from decorators import with_evernote
 
 
 @with_evernote
-def save_note(title, content, user_store, note_store, post_file=None):
+def save_note(title, content, notebook_guid, user_store, note_store,
+              post_file=None):
     image = ''
+    image_resource = ()
 
     if post_file:
         for chunk in post_file.chunks():
             image += chunk
 
-        image = create_image_resource(image)
-    note = create_note(title, content, image)
+        image_resource = create_image_resource(image)
+    note = create_note(title, content, notebook_guid=notebook_guid,
+                       image_resource=image_resource)
     try:
         note_store.createNote(settings.EVERNOTE_DEVELOPER_TOKEN, note)
         response = True
@@ -75,7 +79,8 @@ def load_note(guid, user_store, note_store):
         logging.error('Error on note retrieval: %s' % str(e))
 
     note_content = parse_note(note.content)
-    note_dct = {'description': note_content, 'title': note.title}
+    note_dct = {'description': note_content, 'title': note.title,
+                'created': date.fromtimestamp(note.created / 100).strftime('%d/%m/%Y')}
     try:
         image = '%s/%s?auth=%s' % (settings.EVERNOTE_RESOURCE_URI,
                                    note.resources[0].guid,
